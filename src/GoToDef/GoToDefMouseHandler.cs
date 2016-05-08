@@ -25,14 +25,17 @@ namespace GoToDef
     internal sealed class GoToDefKeyProcessorProvider : IKeyProcessorProvider
     {
         [Import]
-        private SVsServiceProvider _serviceProvider = null;
+        private SVsServiceProvider _serviceProvider;
 
         public KeyProcessor GetAssociatedProcessor(IWpfTextView view)
         {
             IVsExtensionManager manager = _serviceProvider.GetService(typeof(SVsExtensionManager)) as IVsExtensionManager;
+            if (manager == null)
+                return null;
+
             IInstalledExtension extension;
             manager.TryGetInstalledExtension("GoToDef", out extension);
-            if (manager == null || extension != null)
+            if (extension != null)
                 return null;
 
             return view.Properties.GetOrCreateSingletonProperty(typeof(GoToDefKeyProcessor),
@@ -63,7 +66,7 @@ namespace GoToDef
             return view.Properties.GetOrCreateSingletonProperty(typeof(CtrlKeyState), () => new CtrlKeyState());
         }
 
-        private bool _enabled = false;
+        private bool _enabled;
 
         internal bool Enabled
         {
@@ -129,13 +132,13 @@ namespace GoToDef
     internal sealed class GoToDefMouseHandlerProvider : IMouseProcessorProvider
     {
         [Import]
-        private IClassifierAggregatorService _aggregatorFactory = null;
-        [Import]
+        private IClassifierAggregatorService _aggregatorFactory;
 
-        private ITextStructureNavigatorSelectorService _navigatorService = null;
         [Import]
+        private ITextStructureNavigatorSelectorService _navigatorService;
 
-        private SVsServiceProvider _globalServiceProvider = null;
+        [Import]
+        private SVsServiceProvider _globalServiceProvider;
 
         public IMouseProcessor GetAssociatedProcessor(IWpfTextView view)
         {
@@ -148,9 +151,12 @@ namespace GoToDef
 
             ITelemetrySession telemetrySession = TelemetrySessionForPPT.Create(typeof(GoToDefMouseHandler).Assembly);
             IVsExtensionManager manager = _globalServiceProvider.GetService(typeof(SVsExtensionManager)) as IVsExtensionManager;
+            if (manager == null)
+                return null;
+
             IInstalledExtension extension;
             manager.TryGetInstalledExtension("GoToDef", out extension);
-            if (manager == null || extension != null)
+            if (extension != null)
                 return null;
 
             return new GoToDefMouseHandler(view,

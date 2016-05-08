@@ -19,14 +19,14 @@ namespace FixMixedTabs
     {
         [Import]
         private ITextDocumentFactoryService _TextDocumentFactoryService = null;
-        [Import]
 
+        [Import]
         private IEditorOperationsFactoryService _OperationsFactory = null;
-        [Import]
 
+        [Import]
         private ITextUndoHistoryRegistry _UndoHistoryRegistry = null;
-        [Import]
 
+        [Import]
         private SVsServiceProvider _serviceProvider = null;
 
         public IWpfTextViewMargin CreateMargin(IWpfTextViewHost textViewHost, IWpfTextViewMargin containerMargin)
@@ -42,9 +42,12 @@ namespace FixMixedTabs
                 return null;
 
             IVsExtensionManager manager = _serviceProvider.GetService(typeof(SVsExtensionManager)) as IVsExtensionManager;
+            if (manager == null)
+                return null;
+
             IInstalledExtension extension;
             manager.TryGetInstalledExtension("FixMixedTabs", out extension);
-            if (manager == null || extension != null)
+            if (extension != null)
                 return null;
 
             ITextUndoHistory history;

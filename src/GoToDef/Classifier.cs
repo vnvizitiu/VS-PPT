@@ -39,14 +39,14 @@ namespace GoToDef
     internal class UnderlineClassifierProvider : IViewTaggerProvider
     {
         [Import]
-        internal IClassificationTypeRegistryService ClassificationRegistry = null;
+        internal IClassificationTypeRegistryService ClassificationRegistry;
 
         [Import]
-        private SVsServiceProvider _serviceProvider = null;
+        private SVsServiceProvider _serviceProvider;
 
         [Export(typeof(ClassificationTypeDefinition))]
         [Name("UnderlineClassificationProPack")]
-        internal static ClassificationTypeDefinition underlineClassificationType = null;
+        internal static ClassificationTypeDefinition underlineClassificationType;
 
         private static IClassificationType s_underlineClassification;
         public static UnderlineClassifier GetClassifierForView(ITextView view)
@@ -66,9 +66,12 @@ namespace GoToDef
                 return null;
 
             IVsExtensionManager manager = _serviceProvider.GetService(typeof(SVsExtensionManager)) as IVsExtensionManager;
+            if (manager == null)
+                return null;
+
             IInstalledExtension extension;
             manager.TryGetInstalledExtension("GoToDef", out extension);
-            if (manager == null || extension != null)
+            if (extension != null)
                 return null;
 
             return GetClassifierForView(textView) as ITagger<T>;
